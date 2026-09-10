@@ -1,4 +1,4 @@
-# Xiangke (相剋)
+# ☯ Xiangke (相剋)
 
 A Three Kingdoms turn-based command battle game built with **Godot Engine 4.7**
 and **Rust GDExtension**.
@@ -13,9 +13,9 @@ and **Rust GDExtension**.
 
 ## 📖 Overview
 
-Xiangke (相剋) is a turn-based command battle game set in the era of the Three
-Kingdoms. Players command legendary generals, each with unique abilities based
-on Yin-Yang and the Five Elements (陰陽五行) principles.
+Xiangke (相剋) is a turn-based command battle game set in the Three Kingdoms.
+Players command legendary heros, each with abilities based on Yin-Yang and the
+Five Elements (陰陽五行) principles.
 
 The game logic core is implemented in **Rust** for performance and safety,
 bridged to Godot via [gdext](https://github.com/godot-rust/gdext). The primary
@@ -147,32 +147,6 @@ The most common CLI operations are wrapped as npm scripts:
 Other CLI operations (e.g. `list`, `status`, `show`) can be run directly with
 `npx openspec <command>`; add `--json` for machine-readable output.
 
-### Specs
-
-| Spec                         | Purpose                                               |
-| ---------------------------- | ----------------------------------------------------- |
-| `domain`                     | Core domain model (characters, moves, status effects) |
-| `system`                     | Game state machine and lifecycle                      |
-| `front-line-battle`          | Battle flow, state, and participant rules             |
-| `move-selection-ui`          | Move grid layout, info display, keyboard navigation   |
-| `opponent-roster-visibility` | Opponent team disclosure during battle                |
-| `rust-bridge`                | Godot ↔ Rust GDExtension binding contract             |
-| `data-verify`                | Resource export and validation against Rust core      |
-| `testing`                    | Test strategy and coverage requirements               |
-
-### Active Changes
-
-| Change              | Status      | Description                                                |
-| ------------------- | ----------- | ---------------------------------------------------------- |
-| `add-i18n-settings` | In progress | Translation catalogs + settings screen (language & volume) |
-
-## How to Play
-
-1. Select your general from the roster
-2. Choose your moves strategically based on enemy elemental weaknesses
-3. Manage your resources (HP, Spirit, etc.) to unleash powerful techniques
-4. Defeat all enemy forces to claim victory!
-
 ## 🧠 Game Mechanics
 
 ### Elemental System (五行 + 陰陽)
@@ -181,17 +155,6 @@ Other CLI operations (e.g. `list`, `status`, `show`) can be run directly with
   (金) → **Wood** (木) (cycle)
 - **Yin** (陰) and **Yang** (陽) are special elements that interact uniquely
 - Each element has strengths and weaknesses against others
-
-## 🧪 Testing
-
-The project includes **330 tests** across two stacks:
-
-- **Rust** (262 tests): Core logic and battle engine
-  ```bash
-  just test-rust
-  ```
-- **GDScript** (68 tests): Autoloads, type system, UI focus manager Run via
-  Godot's test runner (`tests/test_runner.tscn`).
 
 ## 📜 License
 
