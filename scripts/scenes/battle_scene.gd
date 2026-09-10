@@ -28,11 +28,23 @@ var _enemy_corps_ids: Array[String] = []
 ## Per corps index: whether the character has ever appeared on the field.
 var _revealed_enemy_slots: Array[bool] = []
 
+const CustomButtonRef := preload("res://scripts/ui/custom_button.gd")
+const UIStyleRef := preload("res://scripts/ui/ui_style.gd")
+
 
 func _ready() -> void:
 	_flow_service = BattleFlowService.new()
 	add_child(_flow_service)
+	_apply_custom_theme()
 	_setup_battle()
+
+
+## Applies the custom visual theme while keeping node paths and signals.
+func _apply_custom_theme() -> void:
+	UIStyleRef.apply_heading(status_label)
+	var move_panel := get_node_or_null("MoveContainer/MovePanel") as PanelContainer
+	if move_panel != null:
+		UIStyleRef.apply_panel_style(move_panel)
 
 
 func _setup_battle() -> void:
@@ -156,7 +168,7 @@ func _show_move_selection() -> void:
 		_move_buttons.append(btn)
 
 	# Switch option: swap the front character with a living benched character.
-	var switch_btn := Button.new()
+	var switch_btn := CustomButtonRef.new()
 	switch_btn.text = tr("ui.switch_bench")
 	switch_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	switch_btn.connect("pressed", Callable(self, "_on_switch_selected"))
@@ -222,7 +234,7 @@ func _show_switch_selection() -> void:
 		panel.size_flags_horizontal = Control.SIZE_EXPAND
 		wrapper.add_child(panel)
 
-		var btn := Button.new()
+		var btn := CustomButtonRef.new()
 		btn.text = tr("ui.switch_in")
 		btn.size_flags_horizontal = Control.SIZE_EXPAND
 		btn.connect("pressed", Callable(self, "_on_switch_target_selected").bind(p.slot_index))
@@ -230,7 +242,7 @@ func _show_switch_selection() -> void:
 
 		action_container.add_child(wrapper)
 
-	var cancel_btn := Button.new()
+	var cancel_btn := CustomButtonRef.new()
 	cancel_btn.text = tr("ui.cancel")
 	cancel_btn.connect("pressed", Callable(self, "_on_cancel_switch_selection"))
 	action_container.add_child(cancel_btn)
@@ -520,14 +532,15 @@ func _on_move_option_focused(option_index: int) -> void:
 
 
 ## Applies UIFocusManager-style highlighting to the focused option.
+## Custom buttons draw their own focus ring on grab_focus; reset modulate
+## so selection state never leaks into focus visuals.
 func _update_move_focus_highlight() -> void:
-	var highlighted := Color(1.2, 1.2, 1.0)
-	var normal := Color(1, 1, 1)
 	for i in _move_buttons.size():
-		_move_buttons[i].modulate = highlighted if i == _focused_option_index else normal
+		_move_buttons[i].modulate = Color(1, 1, 1)
+		_move_buttons[i].queue_redraw()
 	if _switch_button != null:
-		_switch_button.modulate = highlighted \
-				if _focused_option_index == _move_buttons.size() else normal
+		_switch_button.modulate = Color(1, 1, 1)
+		_switch_button.queue_redraw()
 
 
 ## Pure list navigation helper: returns the next option index for a step.

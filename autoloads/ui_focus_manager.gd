@@ -59,15 +59,24 @@ func _set_focus(index: int) -> void:
 		var ctrl := focus_group[i]
 		if i == index:
 			ctrl.grab_focus()
-			_modulate_highlight(ctrl, true)
+			_apply_focus_visual(ctrl, true)
 		else:
-			_modulate_highlight(ctrl, false)
+			_apply_focus_visual(ctrl, false)
 	emit_signal("focus_changed", focus_group[index])
 
 
+## Applies custom focus visuals without modulate tinting.
+## Custom controls expose set_focused_visual(); generic Controls fall back
+## to a clean modulate reset so the native focus style stays visible.
+func _apply_focus_visual(control: Control, highlighted: bool) -> void:
+	control.modulate = Color(1.0, 1.0, 1.0)
+	if control.has_method("set_focused_visual"):
+		control.call("set_focused_visual", highlighted)
+	elif control.has_method("queue_redraw"):
+		control.call("queue_redraw")
+
+
 ## Applies visual highlight to a control.
+## Kept for backward compatibility; delegates to _apply_focus_visual.
 func _modulate_highlight(control: Control, highlighted: bool) -> void:
-	if highlighted:
-		control.modulate = Color(1.2, 1.2, 1.0) # Slightly brighter
-	else:
-		control.modulate = Color(1.0, 1.0, 1.0) # Normal
+	_apply_focus_visual(control, highlighted)
