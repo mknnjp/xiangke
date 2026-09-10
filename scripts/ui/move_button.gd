@@ -5,7 +5,7 @@
 ## element can be colored independently; every child ignores mouse input so
 ## the Button itself handles clicks, hover, focus, and keyboard activation.
 class_name MoveButton
-extends Button
+extends "res://scripts/ui/custom_button.gd"
 
 ## Horizontal padding between the content and the button edge, so the focus
 ## ring and stylebox edges never overlap the labels.
@@ -31,6 +31,7 @@ var _ui_built: bool = false
 
 
 func _ready() -> void:
+	super._ready()
 	_build_ui()
 
 

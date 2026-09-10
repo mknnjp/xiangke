@@ -15,8 +15,11 @@ extends Control
 ## Reference to the hint label shown when no corps has been saved yet.
 @onready var start_hint_label: Label = $StartHintLabel
 
+const UIStyleRef := preload("res://scripts/ui/ui_style.gd")
+
 
 func _ready() -> void:
+	_apply_custom_theme()
 	version_label.text = "v1.0.0"
 	_update_start_button_state()
 
@@ -29,6 +32,16 @@ func _ready() -> void:
 	# Register with focus manager if available
 	if UIFocusManager:
 		UIFocusManager.register_focus_group([corps_settings_button, start_button, settings_button])
+
+
+## Applies the custom visual theme while keeping node paths and signals.
+func _apply_custom_theme() -> void:
+	UIStyleRef.apply_button_theme(corps_settings_button)
+	UIStyleRef.apply_button_theme(start_button)
+	UIStyleRef.apply_button_theme(settings_button)
+	var title_label := get_node_or_null("TitleLabel") as Label
+	if title_label != null:
+		UIStyleRef.apply_title(title_label)
 
 
 ## Returns true if a valid 6-character corps exists in save data.

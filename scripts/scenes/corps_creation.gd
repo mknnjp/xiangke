@@ -45,13 +45,25 @@ var _selected_ids: Array[String] = []
 ## All character buttons for focus management.
 var _character_buttons: Array[Control] = []
 
+const CustomButtonRef := preload("res://scripts/ui/custom_button.gd")
+const UIStyleRef := preload("res://scripts/ui/ui_style.gd")
+
 
 func _ready() -> void:
+	_apply_custom_theme()
 	_load_characters()
 	_preload_saved_corps()
 	_update_ui()
 	_setup_preview_colors()
 	stats_preview.hide()
+
+
+## Applies the custom visual theme while keeping node paths and signals.
+func _apply_custom_theme() -> void:
+	UIStyleRef.apply_button_theme(confirm_button)
+	UIStyleRef.apply_button_theme(back_button)
+	UIStyleRef.apply_heading(phase_label)
+	UIStyleRef.apply_panel_style(stats_preview)
 
 
 ## Pre-selects characters from saved corps data if available.
@@ -67,23 +79,9 @@ func _preload_saved_corps() -> void:
 
 ## Sets up the colors for the stats preview labels.
 func _setup_preview_colors() -> void:
-	var white := Color(1, 1, 1)
-	var light_gray := Color(0.8, 0.8, 0.8)
-	var desc_color := Color(0.9, 0.9, 0.9)
-	var move_color := Color(0.85, 0.85, 0.7)
-	preview_name.add_theme_color_override(&"font_color", white)
-	preview_type.add_theme_color_override(&"font_color", light_gray)
-	preview_hp.add_theme_color_override(&"font_color", light_gray)
-	preview_attack.add_theme_color_override(&"font_color", light_gray)
-	preview_defense.add_theme_color_override(&"font_color", light_gray)
-	preview_speed.add_theme_color_override(&"font_color", light_gray)
-	preview_intelligence.add_theme_color_override(&"font_color", light_gray)
-	preview_spirit.add_theme_color_override(&"font_color", light_gray)
-	preview_move_1.add_theme_color_override(&"font_color", move_color)
-	preview_move_2.add_theme_color_override(&"font_color", move_color)
-	preview_move_3.add_theme_color_override(&"font_color", move_color)
-	preview_move_4.add_theme_color_override(&"font_color", move_color)
-	preview_desc.add_theme_color_override(&"font_color", desc_color)
+	UIStyleRef.apply_preview_colors(preview_name, preview_type,
+		[preview_hp, preview_attack, preview_defense, preview_speed, preview_intelligence, preview_spirit],
+		[preview_move_1, preview_move_2, preview_move_3, preview_move_4], preview_desc)
 
 
 ## Loads character data from DataRegistry and creates selection buttons.
@@ -94,7 +92,7 @@ func _load_characters() -> void:
 		if char_data == null:
 			continue
 
-		var btn := Button.new()
+		var btn := CustomButtonRef.new()
 		btn.text = tr(char_data.name_key)
 		# Store char_id in button metadata for later lookup
 		btn.set_meta(&"char_id", char_id)
@@ -193,12 +191,9 @@ func _update_ui() -> void:
 	phase_label.text = tr("ui.select_corps_count") % _selected_ids.size()
 	confirm_button.disabled = _selected_ids.size() != 6
 
-	# Update button visual states — highlight selected buttons
+	# Update button visual states — gold border for selected buttons.
 	for btn in _character_buttons:
 		var char_id: String = btn.get_meta(&"char_id", "")
 		if char_id.is_empty():
 			continue
-		if _selected_ids.has(char_id):
-			(btn as Button).modulate = Color(0.7, 1.0, 0.7) # Green tint for selected
-		else:
-			(btn as Button).modulate = Color(1, 1, 1) # Normal
+		UIStyleRef.apply_selection(btn as Button, _selected_ids.has(char_id))

@@ -3,6 +3,8 @@
 class_name BattleUnitPanel
 extends PanelContainer
 
+const UIStyleRef := preload("res://scripts/ui/ui_style.gd")
+
 ## Size presets: STANDARD (default), LARGE (front characters), SMALL (bench).
 enum SizeMode {STANDARD, LARGE, SMALL}
 
@@ -140,18 +142,13 @@ func _apply_size_mode() -> void:
 
 
 func _create_panel_style() -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.15, 0.15, 0.2, 0.8)
-	style.border_color = Color(0.3, 0.3, 0.4)
-	style.set_border_width_all(1)
-	style.set_corner_radius_all(4)
-	var margin := 6
-	if _size_mode == SizeMode.SMALL:
-		margin = 4
-	elif _size_mode == SizeMode.LARGE:
-		margin = 8
-	style.set_content_margin_all(margin)
-	return style
+	match _size_mode:
+		SizeMode.LARGE:
+			return UIStyleRef.panel_large()
+		SizeMode.SMALL:
+			return UIStyleRef.panel_small()
+		_:
+			return UIStyleRef.panel_standard()
 
 
 ## Builds the UI lazily when _ready() has not run yet (e.g., a freshly
@@ -216,12 +213,7 @@ func update_from_participant(p: BattleParticipant) -> void:
 	else:
 		var hp_ratio: float = float(p.current_hp) / float(p.max_hp)
 		_hp_bar.value = hp_ratio * 100.0
-		if hp_ratio >= 0.5:
-			_hp_bar.modulate = Color("#4CAF50")
-		elif hp_ratio >= 0.25:
-			_hp_bar.modulate = Color("#FFC107")
-		else:
-			_hp_bar.modulate = Color("#F44336")
+		_hp_bar.modulate = UIStyleRef.hp_color(hp_ratio)
 
 	# HP Text
 	if p.is_defeated:
@@ -268,10 +260,12 @@ func show_hidden_placeholder(char_data: CharacterData) -> void:
 		child.queue_free()
 
 	# Gray panel styling.
-	var style := _create_panel_style()
-	style.bg_color = Color(0.12, 0.12, 0.16, 0.8)
-	style.border_color = Color(0.25, 0.25, 0.32)
-	add_theme_stylebox_override("panel", style)
+	var margin := UIStyleRef.CONTENT_MARGIN_NORMAL
+	if _size_mode == SizeMode.SMALL:
+		margin = UIStyleRef.CONTENT_MARGIN_SMALL
+	elif _size_mode == SizeMode.LARGE:
+		margin = UIStyleRef.CONTENT_MARGIN_LARGE
+	add_theme_stylebox_override("panel", UIStyleRef.panel_hidden(margin))
 
 
 ## Shows a defeated state for a character that appeared on the field and was
@@ -306,10 +300,12 @@ func show_defeated_placeholder(char_data: CharacterData) -> void:
 		child.queue_free()
 
 	# Dark panel with a red border to signal defeat.
-	var style := _create_panel_style()
-	style.bg_color = Color(0.13, 0.1, 0.1, 0.8)
-	style.border_color = Color(0.62, 0.22, 0.22)
-	add_theme_stylebox_override("panel", style)
+	var defeat_margin := UIStyleRef.CONTENT_MARGIN_NORMAL
+	if _size_mode == SizeMode.SMALL:
+		defeat_margin = UIStyleRef.CONTENT_MARGIN_SMALL
+	elif _size_mode == SizeMode.LARGE:
+		defeat_margin = UIStyleRef.CONTENT_MARGIN_LARGE
+	add_theme_stylebox_override("panel", UIStyleRef.panel_defeated(defeat_margin))
 
 
 func _update_type_display(char_data: CharacterData) -> void:
@@ -366,9 +362,4 @@ func set_front_highlight(is_front: bool) -> void:
 		style = _create_panel_style()
 		add_theme_stylebox_override("panel", style)
 
-	if is_front:
-		style.border_color = Color("#FFD700")
-		style.set_border_width_all(2)
-	else:
-		style.border_color = Color(0.3, 0.3, 0.4)
-		style.set_border_width_all(1)
+	UIStyleRef.apply_front_highlight(style, is_front)

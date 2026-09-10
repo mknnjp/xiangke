@@ -25,8 +25,11 @@ const LOCALE_NAMES: Dictionary = {
 ## Returns to the title screen.
 @onready var back_button: Button = $SettingsPanel/BackButton
 
+const UIStyleRef := preload("res://scripts/ui/ui_style.gd")
+
 
 func _ready() -> void:
+	UIStyleRef.apply_button_theme(back_button)
 	_populate_language_options()
 	_load_volume_settings()
 	back_button.grab_focus()
