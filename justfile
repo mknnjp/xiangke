@@ -102,9 +102,9 @@ verify-data:
 	rm -f $export_path
 
 # ── Roster report CLI ────────────────────────────────────────
-# Nim-based CLI tool for data analysis and visualization.
+# Rust-based CLI tool for data analysis and visualization.
 # Usage: just report roster
 #        just report types --format=csv
 #        just report radar --format=html --output=report.html
 report cmd *args:
-    cd tools/roster-report && nim c -r src/roster_report.nim {{cmd}} --dir=../../resources {{args}}
+    cd extensions && cargo run -q -p roster_report -- {{cmd}} --dir=../resources {{args}}
